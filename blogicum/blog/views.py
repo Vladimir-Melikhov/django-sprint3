@@ -1,14 +1,26 @@
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
-from django.shortcuts import render, get_object_or_404
-from blog.models import Post, Category
+
+from blog.models import Category, Post
+from blog.const import QUANREST
+
+
+def get_object():
+    return Post.objects.select_related(
+        "category",
+        "author",
+        "location",
+    ).filter(
+        is_published=True,
+        pub_date__lte=timezone.now(),
+    )
 
 
 def index(request):
     posts_lst = (
-        Post.objects.select_related("category", "author", "location")
-        .filter(is_published=True, category__is_published=True,
-                pub_date__lte=timezone.now())
-        .order_by("-pub_date")[:5]
+        get_object()
+        .filter(category__is_published=True)
+        .order_by("-pub_date")[:QUANREST]
     )
     context = {
         "post_lst": posts_lst,
@@ -18,9 +30,9 @@ def index(request):
 
 def post_detail(request, post_id):
     posts = get_object_or_404(
-        Post.objects.select_related("category", "author", "location").filter(
-            pk=post_id, is_published=True, category__is_published=True,
-            pub_date__lte=timezone.now()
+        get_object().filter(
+            pk=post_id,
+            category__is_published=True,
         )
     )
     context = {"post": posts}
@@ -28,13 +40,7 @@ def post_detail(request, post_id):
 
 
 def category_posts(request, category_slug):
-    categories = get_object_or_404(Category, slug=category_slug,
-                                   is_published=True)
-    posts = (
-        Post.objects.select_related("category", "author", "location")
-        .filter(category__slug=category_slug, is_published=True,
-                pub_date__lte=timezone.now())
-        .order_by("-pub_date")
-    )
-    context = {"category": categories, "post_lst": posts}
+    category_obj = get_object_or_404(Category, slug=category_slug, is_published=True)
+    posts = get_object().filter(category=category_obj).order_by("-pub_date")
+    context = {"category": category_obj, "post_lst": posts}
     return render(request, "blog/category.html", context)
