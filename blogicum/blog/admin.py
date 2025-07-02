@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Post, Location, Category
+from .const import TEXTNUM
+from .models import Category, Location, Post
 
 
 class PostAdmin(admin.ModelAdmin):
@@ -11,10 +12,10 @@ class PostAdmin(admin.ModelAdmin):
         'category',
         'author'
     )
-
     def short_text(self, obj):
-        """Возвращает первые 20 символов поля text."""
-        return obj.text[:60] + '...' if len(obj.text) > 60 else obj.text
+        """Возвращает первые 60 символов поля text."""
+        return obj.text[:TEXTNUM] + '...' if len(obj.text) > TEXTNUM else obj.text
+
 
 
 admin.site.register(Post, PostAdmin)

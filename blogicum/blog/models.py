@@ -2,6 +2,9 @@ from django.contrib.auth import get_user_model
 from django.db import models
 
 
+User = get_user_model()
+
+
 class PublicModel(models.Model):
     is_published = models.BooleanField(
         default=True,
@@ -13,9 +16,6 @@ class PublicModel(models.Model):
 
     class Meta:
         abstract = True
-
-
-User = get_user_model()
 
 
 class Category(PublicModel):

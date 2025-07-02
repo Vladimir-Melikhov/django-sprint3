@@ -1,11 +1,11 @@
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 
-from blog.models import Category, Post
 from blog.const import QUANREST
+from blog.models import Category, Post
 
 
-def get_object():
+def get_objects_select_related():
     return Post.objects.select_related(
         "category",
         "author",
@@ -13,13 +13,13 @@ def get_object():
     ).filter(
         is_published=True,
         pub_date__lte=timezone.now(),
+        category__is_published=True,
     )
 
 
 def index(request):
     posts_lst = (
-        get_object()
-        .filter(category__is_published=True)
+        get_objects_select_related()
         .order_by("-pub_date")[:QUANREST]
     )
     context = {
@@ -30,9 +30,8 @@ def index(request):
 
 def post_detail(request, post_id):
     posts = get_object_or_404(
-        get_object().filter(
+        get_objects_select_related().filter(
             pk=post_id,
-            category__is_published=True,
         )
     )
     context = {"post": posts}
@@ -43,6 +42,8 @@ def category_posts(request, category_slug):
     category_obj = get_object_or_404(
         Category, slug=category_slug, is_published=True
     )
-    posts = get_object().filter(category=category_obj).order_by("-pub_date")
+    posts = get_objects_select_related().filter(
+        category=category_obj
+    ).order_by("-pub_date")
     context = {"category": category_obj, "post_lst": posts}
     return render(request, "blog/category.html", context)

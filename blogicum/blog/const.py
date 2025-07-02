@@ -1,1 +1,2 @@
 QUANREST = 5
+TEXTNUM = 60
