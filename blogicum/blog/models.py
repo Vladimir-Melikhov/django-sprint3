@@ -23,8 +23,10 @@ class Category(PublicModel):
     slug = models.SlugField(
         unique=True,
         verbose_name="Идентификатор",
-        help_text=("Идентификатор страницы для URL; "
-                   "разрешены символы латиницы, цифры, дефис и подчёркивание."),
+        help_text=(
+            "Идентификатор страницы для URL; "
+            "разрешены символы латиницы, цифры, дефис и подчёркивание."
+        ),
     )
 
     class Meta:
@@ -54,7 +56,7 @@ class Post(PublicModel):
         help_text=(
             "Если установить дату и время в будущем — "
             "можно делать отложенные публикации."
-            )
+        ),
     )
     author = models.ForeignKey(
         User,
