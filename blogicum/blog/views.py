@@ -5,7 +5,7 @@ from blog.const import QUANREST
 from blog.models import Category, Post
 
 
-def get_objects_select_related():
+def get_published_objects():
     return Post.objects.select_related(
         "category",
         "author",
@@ -19,7 +19,7 @@ def get_objects_select_related():
 
 def index(request):
     posts_lst = (
-        get_objects_select_related()
+        get_published_objects()
         .order_by("-pub_date")[:QUANREST]
     )
     context = {
@@ -30,7 +30,7 @@ def index(request):
 
 def post_detail(request, post_id):
     posts = get_object_or_404(
-        get_objects_select_related().filter(
+        get_published_objects().filter(
             pk=post_id,
         )
     )
@@ -42,7 +42,7 @@ def category_posts(request, category_slug):
     category_obj = get_object_or_404(
         Category, slug=category_slug, is_published=True
     )
-    posts = get_objects_select_related().filter(
+    posts = get_published_objects().filter(
         category=category_obj
     ).order_by("-pub_date")
     context = {"category": category_obj, "post_lst": posts}
